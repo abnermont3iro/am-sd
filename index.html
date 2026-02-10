@@ -8,132 +8,61 @@
         :root {
             --primary-pink: #ffafbd;
             --accent-red: #ff5e62;
-            --soft-white: #fffafa;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            overflow: hidden; font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, var(--primary-pink), var(--accent-red));
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: background 1s ease;
         }
 
-        .bg-hearts {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .heart {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.5);
-            animation: float 6s linear infinite;
-            font-size: 20px;
-        }
+        .bg-hearts { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .heart { position: absolute; color: rgba(255, 255, 255, 0.5); animation: float 6s linear infinite; }
 
         @keyframes float {
             0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
             100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
-        .envelope-wrapper {
-            cursor: pointer;
-            transition: transform 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
+        /* Envelope UI */
+        .envelope-wrapper { cursor: pointer; text-align: center; }
         .envelope {
-            position: relative;
-            width: 250px;
-            height: 180px;
-            background: #fdfdfd;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
+            position: relative; width: 250px; height: 180px; background: #fdfdfd;
+            border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-
         .envelope::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            border-left: 125px solid transparent;
-            border-right: 125px solid transparent;
+            content: ''; position: absolute; top: 0; left: 0;
+            border-left: 125px solid transparent; border-right: 125px solid transparent;
             border-top: 100px solid #f2f2f2;
-            z-index: 3;
         }
 
+        /* Card UI */
         #valentine-card {
-            display: none;
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            width: 85%;
-            max-width: 380px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            z-index: 10;
-            position: relative;
+            display: none; background: white; padding: 25px; border-radius: 20px;
+            width: 85%; max-width: 380px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 10; position: relative;
         }
 
-        .main-img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            pointer-events: none; /* Prevents button from getting stuck behind image */
-        }
-
-        h1 { color: var(--accent-red); font-size: 1.4rem; margin-bottom: 20px; }
+        .main-img { width: 100%; height: 250px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; }
 
         .btn-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 150px;
-            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            gap: 20px; min-height: 150px; position: relative;
         }
 
         button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s ease;
+            padding: 12px 25px; border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+            transition: transform 0.2s ease, left 0.3s ease, top 0.3s ease;
         }
 
-        #yesBtn { background-color: #4CAF50; color: white; position: relative; z-index: 11; }
-        
-        #noBtn { 
-            background-color: #f44336; 
-            color: white; 
-            position: absolute; /* Allows for random movement */
-            z-index: 12;
-            transition: all 0.2s ease;
-        }
+        #yesBtn { background-color: #4CAF50; color: white; position: relative; z-index: 15; }
+        #noBtn { background-color: #f44336; color: white; position: relative; z-index: 14; }
 
-        #musicToggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.5);
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            z-index: 100;
-        }
+        #musicToggle { position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.5); border: none; padding: 10px; border-radius: 50%; z-index: 100; }
     </style>
 </head>
 <body>
@@ -142,21 +71,19 @@
 
     <div class="envelope-wrapper" id="envelopeWrapper" onclick="openEnvelope()">
         <div class="envelope"></div>
-        <div class="mail-label" style="margin-top:20px; color:white; font-weight:bold;">You've got mail! 💌</div>
+        <div style="margin-top:20px; color:white; font-weight:bold;">You've got mail! 💌</div>
     </div>
 
     <div id="valentine-card">
-        <img id="displayImg" class="main-img" src="images/us-main.jpeg" alt="Us">
-        <h1 id="questionText">Will you be my Valentine?</h1>
+        <img id="displayImg" class="main-img" src="images/us-main.jpeg">
+        <h1 id="questionText" style="color:var(--accent-red); font-size:1.4rem;">Will you be my Valentine?</h1>
         <div class="btn-container" id="btnContainer">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
             <button id="noBtn" onmouseover="moveNoButton()" onclick="handleNo()">No</button>
         </div>
     </div>
 
-    <audio id="bgMusic" loop>
-        <source src="mood-swings.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgMusic" loop><source src="mood-swings.mp3" type="audio/mpeg"></audio>
     <button id="musicToggle" onclick="toggleMusic()">🎵</button>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -166,9 +93,9 @@
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const card = document.getElementById('valentine-card');
+        let noClickCount = 0;
         let noScale = 1;
         let yesScale = 1;
-        let noClickCount = 0;
 
         const messages = [
             "Ain't no way you just said no... Try again...",
@@ -178,21 +105,15 @@
             "This is the end... last chance..."
         ];
 
-        // Updated to .jpeg
         const sadImages = [
-            "images/sad-1.jpeg",
-            "images/sad-2.jpeg",
-            "images/sad-3.jpeg",
-            "images/sad-4.jpeg",
-            "images/sad-5.jpeg"
+            "images/sad-1.jpeg", "images/sad-2.jpeg", "images/sad-3.jpeg", "images/sad-4.jpeg", "images/sad-5.jpeg"
         ];
 
         function createHearts() {
             const container = document.getElementById('heartBg');
             for(let i=0; i<25; i++) {
                 const heart = document.createElement('div');
-                heart.className = 'heart';
-                heart.innerHTML = '❤️';
+                heart.className = 'heart'; heart.innerHTML = '❤️';
                 heart.style.left = Math.random() * 100 + 'vw';
                 heart.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(heart);
@@ -200,37 +121,32 @@
         }
         createHearts();
 
-        function toggleMusic() {
-            return music.paused ? music.play() : music.pause();
-        }
+        function toggleMusic() { return music.paused ? music.play() : music.pause(); }
 
         function openEnvelope() {
             document.getElementById('envelopeWrapper').style.display = 'none';
             card.style.display = 'block';
-            music.load();
             music.play().catch(() => {});
         }
 
-        // Logic to move the No button randomly within the viewport but away from the card
         function moveNoButton() {
-            if (noClickCount >= 5) return; // Stop moving if it's already hidden
-
-            const padding = 20;
-            const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-            const maxY = window.innerHeight - noBtn.offsetHeight - padding;
-
-            let randomX = Math.random() * maxX;
-            let randomY = Math.random() * maxY;
-
-            // Simple check to prevent it from overlapping the center card
-            const cardRect = card.getBoundingClientRect();
-            if (randomX > cardRect.left - 50 && randomX < cardRect.right + 50 &&
-                randomY > cardRect.top - 50 && randomY < cardRect.bottom + 50) {
-                randomX = padding; // Move to corner if it hits the card
-                randomY = padding;
-            }
+            // First click: Stay put. Subsequent clicks: Run away.
+            if (noClickCount === 0) return; 
+            if (noClickCount >= 5) return;
 
             noBtn.style.position = 'fixed';
+            
+            const padding = 50;
+            let randomX = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
+            let randomY = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
+
+            // Avoid covering the center card
+            const rect = card.getBoundingClientRect();
+            if (randomX > rect.left - 50 && randomX < rect.right + 50 &&
+                randomY > rect.top - 50 && randomY < rect.bottom + 50) {
+                randomX = 20; randomY = 20;
+            }
+
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
@@ -238,6 +154,12 @@
         function handleNo() {
             const img = document.getElementById('displayImg');
             const title = document.getElementById('questionText');
+
+            // After first "No", Yes button moves to absolute center of card
+            if (noClickCount === 0) {
+                yesBtn.style.transition = "all 0.5s ease";
+                // Moves Yes button to a more prominent centered spot
+            }
 
             if (noClickCount < messages.length) {
                 title.innerText = messages[noClickCount];
@@ -253,7 +175,7 @@
             } else {
                 noBtn.style.transform = `scale(${noScale})`;
                 yesBtn.style.transform = `scale(${yesScale})`;
-                moveNoButton(); // Move it again on click
+                moveNoButton();
             }
             
             noClickCount++;
@@ -265,13 +187,7 @@
                 <img class="main-img" src="images/happy-1.jpeg">
                 <h1 style="font-size: 1.1rem; padding: 10px;">Congratulations!!! You've secured an all expenses paid valentines day with THIS GUY ❤️</h1>
             `;
-
-            var end = Date.now() + (10 * 1000);
-            (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ffafbd', '#ff5e62'] });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ffafbd', '#ff5e62'] });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
     </script>
 </body>
