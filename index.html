@@ -71,7 +71,7 @@
 
     <div id="valentine-card">
         <div class="img-container">
-            <img id="displayImg" class="main-img" src="images/us-main.jpeg">
+            <img id="displayImg" class="main-img" src="images/initial.jpeg">
         </div>
         <h1 id="questionText">Will you be my Valentine?</h1>
         <div class="btn-container">
@@ -88,8 +88,10 @@
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const card = document.getElementById('valentine-card');
+        const displayImg = document.getElementById('displayImg');
+        const questionText = document.getElementById('questionText');
         let noClickCount = 0;
-        let isDodgeMode = false; // The gatekeeper
+        let isDodgeMode = false;
 
         const messages = [
             "Ain't no way you just said no... Try again...",
@@ -108,14 +110,13 @@
             card.style.display = 'block';
             document.getElementById('bgMusic').play().catch(() => {});
             
-            // Initial positioning
+            // Set initial button position
             const rect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (rect.right + 20) + 'px';
             noBtn.style.top = rect.top + 'px';
         }
 
         function handleHover() {
-            // ONLY moves on hover if Dodge Mode is active (after 5th click)
             if (isDodgeMode) {
                 moveButtonRandomly();
             }
@@ -131,7 +132,6 @@
                 newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
                 newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
                 
-                // Ensure it's not behind the card
                 const overlap = (
                     newX > cardRect.left - padding && newX < cardRect.right + padding &&
                     newY > cardRect.top - padding && newY < cardRect.bottom + padding
@@ -147,24 +147,20 @@
         function handleNo() {
             noClickCount++;
 
-            // Update Text and Image
             if (noClickCount <= 5) {
-                document.getElementById('questionText').innerText = messages[noClickCount - 1];
-                document.getElementById('displayImg').src = sadImages[noClickCount - 1];
+                questionText.innerText = messages[noClickCount - 1];
+                displayImg.src = sadImages[noClickCount - 1];
             }
 
-            // After the 5th click is done, the message is "last chance" 
-            // and the button enters dodge mode for any further attempts.
             if (noClickCount === 5) {
                 isDodgeMode = true; 
-                moveButtonRandomly(); // Final move to a random spot
+                moveButtonRandomly(); 
             } else if (noClickCount < 5) {
-                moveButtonRandomly(); // Static move for clicks 1-4
+                moveButtonRandomly(); 
             } else {
-                moveButtonRandomly(); // If they manage to click it while dodging
+                moveButtonRandomly(); 
             }
 
-            // Visual cue for the final stand
             if (noClickCount === 4) {
                 document.body.style.background = "#333";
             }
