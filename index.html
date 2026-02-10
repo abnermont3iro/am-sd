@@ -29,7 +29,7 @@
         #valentine-card {
             display: none; background: white; padding: 25px; border-radius: 20px;
             width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 10; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); z-index: 10; position: relative;
         }
 
         .img-container {
@@ -44,22 +44,21 @@
 
         .btn-container {
             display: flex; justify-content: center; align-items: center;
-            gap: 20px; min-height: 120px; margin-top: 10px;
-            position: relative;
+            min-height: 80px; margin-top: 10px;
         }
 
         button {
             padding: 12px 25px; border: none; border-radius: 50px;
             font-size: 1rem; font-weight: bold; cursor: pointer;
-            transition: background 0.3s;
         }
 
         #yesBtn { background-color: #4CAF50; color: white; position: relative; z-index: 20; }
         
         #noBtn { 
             background-color: #f44336; color: white; 
-            position: absolute; z-index: 19;
-            /* No transition here so the warp on the 5th click is instant */
+            position: fixed; 
+            z-index: 19;
+            /* No transition so the warp is instant on the final stage */
         }
 
         #musicToggle { position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.5); border: none; padding: 10px; border-radius: 50%; z-index: 100; }
@@ -68,7 +67,6 @@
         .envelope {
             position: relative; width: 250px; height: 180px; background: #fdfdfd;
             border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .envelope::before {
             content: ''; position: absolute; top: 0; left: 0;
@@ -91,7 +89,7 @@
             <img id="displayImg" class="main-img" src="images/us-main.jpeg">
         </div>
         <h1 id="questionText">Will you be my Valentine?</h1>
-        <div class="btn-container" id="btnContainer">
+        <div class="btn-container">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
             <button id="noBtn" onclick="handleNo()" onmouseover="handleHover()">No</button>
         </div>
@@ -107,7 +105,6 @@
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const card = document.getElementById('valentine-card');
-        const container = document.getElementById('btnContainer');
         let noClickCount = 0;
 
         const messages = [
@@ -119,7 +116,11 @@
         ];
 
         const sadImages = [
-            "images/sad-1.jpeg", "images/sad-2.jpeg", "images/sad-3.jpeg", "images/sad-4.jpeg", "images/sad-5.jpeg"
+            "images/sad-1.jpeg", 
+            "images/sad-2.jpeg", 
+            "images/sad-3.jpeg", 
+            "images/sad-4.jpeg", 
+            "images/sad-5.jpeg"
         ];
 
         function openEnvelope() {
@@ -127,9 +128,9 @@
             card.style.display = 'block';
             music.play().catch(() => {});
             createHearts();
-            // Start the button in a normal spot
-            noBtn.style.left = (yesBtn.offsetLeft + 110) + 'px';
-            noBtn.style.top = yesBtn.offsetTop + 'px';
+            const rect = yesBtn.getBoundingClientRect();
+            noBtn.style.left = (rect.right + 20) + 'px';
+            noBtn.style.top = rect.top + 'px';
         }
 
         function createHearts() {
@@ -145,7 +146,7 @@
 
         function toggleMusic() { return music.paused ? music.play() : music.pause(); }
 
-        // This handles the "Dodge" on the 5th one
+        // DODGE LOGIC: Starts only when we reach the 5th message (noClickCount = 4)
         function handleHover() {
             if (noClickCount >= 4) {
                 warpButton();
@@ -153,7 +154,6 @@
         }
 
         function warpButton() {
-            noBtn.style.position = 'fixed';
             const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
             const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
             noBtn.style.left = x + 'px';
@@ -169,20 +169,27 @@
                 img.src = sadImages[noClickCount];
             }
 
-            // Darken the screen on the last chance
             if (noClickCount === 3) {
                 document.body.style.background = "#333"; 
             }
 
-            // Logic for moving after a successful click
+            // Move to a static spot outside the card for the first 4 clicks
             if (noClickCount < 4) {
-                // Move it to a new FIXED spot inside the container
-                const newX = Math.random() * (container.offsetWidth - noBtn.offsetWidth);
-                const newY = Math.random() * (container.offsetHeight - noBtn.offsetHeight);
-                noBtn.style.left = newX + 'px';
-                noBtn.style.top = newY + 'px';
+                let randomX, randomY;
+                const cardRect = card.getBoundingClientRect();
+
+                do {
+                    randomX = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+                    randomY = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+                } while (
+                    randomX > cardRect.left - 50 && randomX < cardRect.right + 50 &&
+                    randomY > cardRect.top - 50 && randomY < cardRect.bottom + 50
+                );
+
+                noBtn.style.left = randomX + 'px';
+                noBtn.style.top = randomY + 'px';
             } else {
-                // If she somehow clicks it on the 5th one, warp it anyway
+                // If they are on the 5th message, hover/click triggers the dodge
                 warpButton();
             }
             
@@ -197,6 +204,7 @@
                 </div>
                 <h1 style="font-size: 1.1rem; padding: 10px;">Congratulations!!! You've secured an all expenses paid valentines day with THIS GUY ❤️</h1>
             `;
+            noBtn.style.display = 'none';
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
     </script>
