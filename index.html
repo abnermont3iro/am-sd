@@ -3,83 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Special Question</title>
+    <title>Open Your Mail 💌</title>
     <style>
-        body {
+        :root {
+            --primary-pink: #ffafbd;
+            --accent-red: #ff5e62;
+            --soft-white: #fffafa;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-pink), var(--accent-red));
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #ffebee;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
         }
-        #container {
+
+        /* Floating Hearts Background */
+        .bg-hearts {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.5);
+            animation: float 6s linear infinite;
+            font-size: 20px;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Envelope Styling */
+        .envelope-wrapper {
+            cursor: pointer;
+            transition: transform 0.5s;
+        }
+
+        .envelope {
+            position: relative;
+            width: 250px;
+            height: 180px;
+            background: #fdfdfd;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            border-left: 125px solid transparent;
+            border-right: 125px solid transparent;
+            border-top: 100px solid #f2f2f2;
+            transform-origin: top;
+            transition: transform 0.5s 0.3s;
+            z-index: 3;
+        }
+
+        .mail-label {
+            position: absolute;
+            bottom: -40px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* The Card (Hidden in Envelope) */
+        #valentine-card {
+            display: none;
             background: white;
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
         }
-        h1 { color: #d32f2f; }
-        .buttons {
-            margin-top: 20px;
-            position: relative;
-            height: 100px;
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
+
+        .main-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 { color: var(--accent-red); margin-bottom: 30px; }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            min-height: 100px;
+        }
+
         button {
             padding: 15px 30px;
-            font-size: 1.2rem;
-            border-radius: 10px;
             border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #yesBtn {
-            background-color: #4caf50;
-            color: white;
+
+        #yesBtn { background-color: #4CAF50; color: white; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
+        #noBtn { background-color: #f44336; color: white; }
+
+        /* Music Toggle */
+        #musicToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
         }
-        #noBtn {
-            background-color: #f44336;
-            color: white;
-            position: absolute;
-        }
-        img { width: 200px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="container">
-        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHYyZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0JmJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/c76IJLufpNUMo/giphy.gif" alt="Cute Cat">
-        <h1 id="question">Will you be my Valentine?</h1>
-        
-        <div class="buttons">
-            <button id="yesBtn">Yes</button>
-            <button id="noBtn">No</button>
+    <div class="bg-hearts" id="heartBg"></div>
+
+    <div class="envelope-wrapper" id="envelopeWrapper" onclick="openEnvelope()">
+        <div class="envelope"></div>
+        <div class="mail-label">You've got mail! (Click to open)</div>
+    </div>
+
+    <div id="valentine-card">
+        <img id="displayImg" class="main-img" src="https://images.unsplash.com/photo-1518562180175-34a163b1a9a6?w=500" alt="Cute Valentine">
+        <h1 id="questionText">Will you be my Valentine?</h1>
+        <div class="btn-container">
+            <button id="yesBtn" onclick="celebrate()">Yes</button>
+            <button id="noBtn" onclick="handleNo()">No</button>
         </div>
     </div>
 
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    <button id="musicToggle" onclick="toggleMusic()">🎵</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        const noBtn = document.getElementById('noBtn');
-        const yesBtn = document.getElementById('yesBtn');
-        const question = document.getElementById('question');
+        let noScale = 1;
+        let yesScale = 1;
+        let noClickCount = 0;
 
-        // The "Runaway" logic
-        noBtn.addEventListener('mouseover', () => {
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            noBtn.style.left = `${x}px`;
-            noBtn.style.top = `${y}px`;
-        });
+        // Persuasive/Sad images for the "No" cycle
+        // CHANGE IMAGES HERE: Add your own photo links to this list
+        const images = [
+            "https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=500", // Sad puppy/vibe
+            "https://images.unsplash.com/photo-1494548162494-384bba4ab999?w=500", // Crying emoji style
+            "https://images.unsplash.com/photo-1531928351158-2f736078e0a1?w=500"  // Thinking face
+        ];
 
-        // The "Success" logic
-        yesBtn.addEventListener('click', () => {
-            document.getElementById('container').innerHTML = `
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHYyZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0JmJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/KzM1lAfJjCW3u/giphy.gif">
+        function createHearts() {
+            const container = document.getElementById('heartBg');
+            for(let i=0; i<20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        function toggleMusic() {
+            const music = document.getElementById('bgMusic');
+            return music.paused ? music.play() : music.pause();
+        }
+
+        function openEnvelope() {
+            document.getElementById('envelopeWrapper').style.display = 'none';
+            document.getElementById('valentine-card').style.display = 'block';
+            document.getElementById('bgMusic').play().catch(() => {
+                console.log("Autoplay blocked - user must interact with toggle");
+            });
+        }
+
+        function handleNo() {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            const img = document.getElementById('displayImg');
+
+            noScale -= 0.15;
+            yesScale += 0.15;
+            
+            if (noScale <= 0.2) {
+                noBtn.style.display = 'none'; // Disappears when too small
+            } else {
+                noBtn.style.transform = `scale(${noScale})`;
+                yesBtn.style.transform = `scale(${yesScale})`;
+            }
+
+            // Cycle images
+            img.src = images[noClickCount % images.length];
+            noClickCount++;
+
+            // Change question text to be persuasive
+            const messages = ["Are you sure?", "Think again!", "Puh-lease?", "I'll be very sad...", "I'll buy you snacks!"];
+            document.getElementById('questionText').innerText = messages[Math.min(noClickCount, messages.length-1)];
+        }
+
+        function celebrate() {
+            const card = document.getElementById('valentine-card');
+            // FINAL IMAGE: Change this to a photo of you two happy
+            card.innerHTML = `
+                <img class="main-img" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHYyZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0ZzR0JmJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/KzM1lAfJjCW3u/giphy.gif">
                 <h1>Yay! See you on the 14th! ❤️</h1>
             `;
-        });
+
+            // Confetti Cannon
+            const duration = 15 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
     </script>
 </body>
 </html>
