@@ -15,15 +15,6 @@
             overflow: hidden; font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, var(--primary-pink), var(--accent-red));
             display: flex; align-items: center; justify-content: center;
-            transition: background 1s ease;
-        }
-
-        .bg-hearts { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .heart { position: absolute; color: rgba(255, 255, 255, 0.5); animation: float 6s linear infinite; }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
         #valentine-card {
@@ -34,17 +25,17 @@
 
         .img-container {
             width: 100%; aspect-ratio: 1 / 1; margin-bottom: 15px;
-            overflow: hidden; border-radius: 15px; background-color: #f9f9f9;
+            overflow: hidden; border-radius: 15px; background: #f9f9f9;
             display: flex; align-items: center; justify-content: center;
         }
 
-        .main-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .main-img { width: 100%; height: 100%; object-fit: contain; }
 
         h1 { color: var(--accent-red); font-size: 1.3rem; margin-bottom: 20px; min-height: 3.5em; }
 
         .btn-container {
             display: flex; justify-content: center; align-items: center;
-            min-height: 80px; margin-top: 10px;
+            gap: 20px; min-height: 80px;
         }
 
         button {
@@ -56,12 +47,9 @@
         
         #noBtn { 
             background-color: #f44336; color: white; 
-            position: fixed; 
-            z-index: 19;
+            position: fixed; z-index: 100;
         }
 
-        #musicToggle { position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.5); border: none; padding: 10px; border-radius: 50%; z-index: 100; }
-        
         .envelope-wrapper { cursor: pointer; text-align: center; z-index: 30; }
         .envelope {
             position: relative; width: 250px; height: 180px; background: #fdfdfd;
@@ -75,8 +63,6 @@
     </style>
 </head>
 <body>
-
-    <div class="bg-hearts" id="heartBg"></div>
 
     <div class="envelope-wrapper" id="envelopeWrapper" onclick="openEnvelope()">
         <div class="envelope"></div>
@@ -95,16 +81,15 @@
     </div>
 
     <audio id="bgMusic" loop><source src="mood-swings.mp3" type="audio/mpeg"></audio>
-    <button id="musicToggle" onclick="toggleMusic()">🎵</button>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script>
-        const music = document.getElementById('bgMusic');
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const card = document.getElementById('valentine-card');
         let noClickCount = 0;
+        let isDodgeMode = false; // The gatekeeper
 
         const messages = [
             "Ain't no way you just said no... Try again...",
@@ -115,95 +100,80 @@
         ];
 
         const sadImages = [
-            "images/sad-1.jpeg", 
-            "images/sad-2.jpeg", 
-            "images/sad-3.jpeg", 
-            "images/sad-4.jpeg", 
-            "images/sad-5.jpeg"
+            "images/sad-1.jpeg", "images/sad-2.jpeg", "images/sad-3.jpeg", "images/sad-4.jpeg", "images/sad-5.jpeg"
         ];
 
         function openEnvelope() {
             document.getElementById('envelopeWrapper').style.display = 'none';
             card.style.display = 'block';
-            music.play().catch(() => {});
-            createHearts();
+            document.getElementById('bgMusic').play().catch(() => {});
+            
+            // Initial positioning
             const rect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (rect.right + 20) + 'px';
             noBtn.style.top = rect.top + 'px';
         }
 
-        function createHearts() {
-            const bg = document.getElementById('heartBg');
-            for(let i=0; i<15; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'heart'; heart.innerHTML = '❤️';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDelay = Math.random() * 5 + 's';
-                bg.appendChild(heart);
-            }
-        }
-
-        function toggleMusic() { return music.paused ? music.play() : music.pause(); }
-
-        // DODGE LOGIC: Starts ONLY after the 5th click is made
         function handleHover() {
-            if (noClickCount >= 5) {
-                warpButton();
+            // ONLY moves on hover if Dodge Mode is active (after 5th click)
+            if (isDodgeMode) {
+                moveButtonRandomly();
             }
         }
 
-        function warpButton() {
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
+        function moveButtonRandomly() {
+            const cardRect = card.getBoundingClientRect();
+            let newX, newY;
+            const padding = 60;
+
+            let foundSpot = false;
+            while (!foundSpot) {
+                newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
+                newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
+                
+                // Ensure it's not behind the card
+                const overlap = (
+                    newX > cardRect.left - padding && newX < cardRect.right + padding &&
+                    newY > cardRect.top - padding && newY < cardRect.bottom + padding
+                );
+
+                if (!overlap) foundSpot = true;
+            }
+
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
         }
 
         function handleNo() {
-            const img = document.getElementById('displayImg');
-            const title = document.getElementById('questionText');
+            noClickCount++;
 
             // Update Text and Image
-            if (noClickCount < messages.length) {
-                title.innerText = messages[noClickCount];
-                img.src = sadImages[noClickCount];
+            if (noClickCount <= 5) {
+                document.getElementById('questionText').innerText = messages[noClickCount - 1];
+                document.getElementById('displayImg').src = sadImages[noClickCount - 1];
             }
 
-            // Darken background on 4th click (preparing for final message)
-            if (noClickCount === 3) {
-                document.body.style.background = "#333"; 
-            }
-
-            // STATIC REPOSITIONING for first 5 clicks
-            if (noClickCount < 5) {
-                let randomX, randomY;
-                const cardRect = card.getBoundingClientRect();
-
-                // Ensure it lands OUTSIDE the card
-                do {
-                    randomX = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-                    randomY = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-                } while (
-                    randomX > cardRect.left - 40 && randomX < cardRect.right + 40 &&
-                    randomY > cardRect.top - 40 && randomY < cardRect.bottom + 40
-                );
-
-                noBtn.style.left = randomX + 'px';
-                noBtn.style.top = randomY + 'px';
+            // After the 5th click is done, the message is "last chance" 
+            // and the button enters dodge mode for any further attempts.
+            if (noClickCount === 5) {
+                isDodgeMode = true; 
+                moveButtonRandomly(); // Final move to a random spot
+            } else if (noClickCount < 5) {
+                moveButtonRandomly(); // Static move for clicks 1-4
             } else {
-                // Once 5 clicks are done, the dodge begins
-                warpButton();
+                moveButtonRandomly(); // If they manage to click it while dodging
             }
-            
-            noClickCount++;
+
+            // Visual cue for the final stand
+            if (noClickCount === 4) {
+                document.body.style.background = "#333";
+            }
         }
 
         function celebrate() {
             document.body.style.background = "linear-gradient(135deg, #ffafbd, #ff5e62)";
             card.innerHTML = `
-                <div class="img-container">
-                    <img class="main-img" src="images/happy-1.jpeg">
-                </div>
+                <div class="img-container"><img class="main-img" src="images/happy-1.jpeg"></div>
                 <h1 style="font-size: 1.1rem; padding: 10px;">Congratulations!!! You've secured an all expenses paid valentines day with THIS GUY ❤️</h1>
             `;
             noBtn.style.display = 'none';
